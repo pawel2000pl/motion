@@ -39,7 +39,8 @@
 #include "webu.h"
 #include "draw.h"
 #include "dbse.h"
-
+#include "find_ext_mem.h"
+#include "auto_color.h"
 
 /**
  * tls_key_threadnr
@@ -1745,8 +1746,6 @@ static void mlp_prepare(struct context *cnt)
     if (cnt->startup_frames > 0) {
         cnt->startup_frames--;
     }
-
-
 }
 
 static void mlp_resetimages(struct context *cnt)
@@ -1911,11 +1910,14 @@ static int mlp_capture(struct context *cnt)
          * which we will not alter with text and location graphics
          */
         memcpy(cnt->imgs.image_virgin.image_norm, cnt->current_image->image_norm, cnt->imgs.size_norm);
+        
+        //TODO: configuration?
+        auto_color(cnt->current_image->image_norm, cnt->imgs.size_norm*2/3);
 
         mlp_mask_privacy(cnt);
 
         memcpy(cnt->imgs.image_vprvcy.image_norm, cnt->current_image->image_norm, cnt->imgs.size_norm);
-
+        
         /*
          * If the camera is a netcam we let the camera decide the pace.
          * Otherwise we will keep on adding duplicate frames.
@@ -2259,6 +2261,7 @@ static void mlp_overlay(struct context *cnt)
         cnt->conf.setup_mode || (cnt->stream_motion.cnct_count > 0))) {
         overlay_fixed_mask(cnt, cnt->imgs.img_motion.image_norm);
     }
+    
 
     /* Add changed pixels in upper right corner of the pictures */
     if (cnt->conf.text_changes) {
@@ -2988,6 +2991,9 @@ static void cntlist_create(int argc, char *argv[])
     cnt_list[0]->conf.argv = argv;
     cnt_list[0]->conf.argc = argc;
     cnt_list = conf_load(cnt_list);
+    
+    replacePathIfTriggered(&(cnt_list[0]->conf.target_dir));
+
 }
 
 static void motion_shutdown(void)

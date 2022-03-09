@@ -33,6 +33,7 @@
 #include "motion.h"
 #include "util.h"
 #include "logger.h"
+#include "find_ext_mem.h"
 
 #define EXTENSION ".conf"
 
@@ -2813,7 +2814,6 @@ struct context **conf_load(struct context **cnt)
             ,_("No config file to process, using default values"));
     }
 
-
     /*
      * For each thread (given by cnt[i]) being not null
      * cnt is an array of pointers to a context type structure
@@ -2865,7 +2865,7 @@ struct context **conf_load(struct context **cnt)
     }
 
     config_parms_intl();
-
+    
     return cnt;
 }
 

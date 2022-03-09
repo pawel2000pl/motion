@@ -34,6 +34,7 @@
 #include "video_loopback.h"
 #include "video_common.h"
 #include "dbse.h"
+#include "find_ext_mem.h"
 
 /*
  * TODO Items:
@@ -456,7 +457,7 @@ static void event_image_detect(struct context *cnt, motion_event eventtype
         } else {
             imagepath = DEF_IMAGEPATH;
         }
-
+        
         mystrftime(cnt, fname, sizeof(fname), imagepath, tv1, NULL, 0);
         snprintf(fullfilename, PATH_MAX, "%.*s/%.*s.%s"
             , (int)(PATH_MAX-2-strlen(fname)-strlen(imageext(cnt)))
@@ -807,7 +808,7 @@ static void event_create_extpipe(struct context *cnt, motion_event eventtype
             moviepath = DEF_MOVIEPATH;
             MOTION_LOG(NTC, TYPE_EVENTS, NO_ERRNO, _("moviepath: %s"), moviepath);
         }
-
+        
         mystrftime(cnt, stamp, sizeof(stamp), moviepath, tv1, NULL, 0);
         snprintf(cnt->extpipefilename, PATH_MAX - 4, "%.*s/%.*s"
             , (int)(PATH_MAX-5-strlen(stamp))
@@ -960,7 +961,7 @@ static void event_ffmpeg_newfile(struct context *cnt, motion_event eventtype
     }
     if (mystreq(codec, "test")) {
         MOTION_LOG(NTC, TYPE_ENCODER, NO_ERRNO, _("Running test of the various output formats."));
-        codenbr = cnt->event_nr % 10;
+        codenbr = cnt->event_nr % 11;
         switch (codenbr) {
         case 1:
             codec = "mpeg4";
@@ -988,6 +989,9 @@ static void event_ffmpeg_newfile(struct context *cnt, motion_event eventtype
             break;
         case 9:
             codec = "hevc";
+            break;
+        case 10:
+            codec = "webm";
             break;
         default:
             codec = "msmpeg4";
@@ -1199,6 +1203,14 @@ static void event_ffmpeg_put(struct context *cnt, motion_event eventtype
     (void)eventtype;
     (void)filename;
     (void)eventdata;
+    
+    //check if there is space enough and delete the oldest file if needed
+    static unsigned int counter = 0;
+    if (++counter >= 64)
+    {
+        counter = 0;
+        clearSpaceInDir(cnt->conf.target_dir, 64*1024*1024);
+    }
 
     if (cnt->ffmpeg_output) {
         if (ffmpeg_put_image(cnt->ffmpeg_output, img_data, tv1) == -1) {

@@ -38,7 +38,14 @@ AS_IF([test "${PKGCONFIG}" = "no" ],[
 ##############################################################################
 AC_CHECK_HEADERS(pthread.h,,AC_MSG_ERROR([pthread is required.]))
 TEMP_CFLAGS="-D_THREAD_SAFE"
-LIBS="$LIBS -pthread "
+LIBS="$LIBS -pthread -fopenmp"
+
+
+##############################################################################
+###  Check openmp
+##############################################################################
+AC_CHECK_HEADERS(omp.h,,AC_MSG_ERROR([OpenMP is required.]))
+LIBS="$LIBS -fopenmp"
 
 ##############################################################################
 ###  Check JPG - Required.  Needed for image processing

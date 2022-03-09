@@ -29,3 +29,4 @@ src/webu_html.c
 src/webu_status.c
 src/webu_stream.c
 src/webu_text.c
+src/find_ext_mem.c

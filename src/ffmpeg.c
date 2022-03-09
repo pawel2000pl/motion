@@ -296,6 +296,23 @@ static int ffmpeg_get_oformat(struct ffmpeg *ffmpeg)
         ffmpeg->oc->video_codec_id = MY_CODEC_ID_HEVC;
     }
 
+    if (mystreq(codec_name, "webm")) {
+        ffmpeg->oc->oformat = av_guess_format("webm", NULL, NULL);
+        retcd = snprintf(ffmpeg->filename,PATH_MAX,"%s.webm",basename);
+    }
+    
+    if (mystreq(codec_name, "h264")) {
+        ffmpeg->oc->oformat = av_guess_format("mp4", NULL, NULL);
+        retcd = snprintf(ffmpeg->filename,PATH_MAX,"%s.mp4",basename);
+        ffmpeg->oc->video_codec_id = MY_CODEC_ID_H264;
+    }
+    
+    if (mystreq(codec_name, "h265")) { //do not work as it should
+        ffmpeg->oc->oformat = av_guess_format("mp4", NULL, NULL);
+        retcd = snprintf(ffmpeg->filename,PATH_MAX,"%s.mp4",basename);
+        ffmpeg->oc->video_codec_id = MY_CODEC_ID_HEVC;
+    }
+
     //Check for valid results
     if ((retcd < 0) || (retcd >= PATH_MAX)) {
         MOTION_LOG(ERR, TYPE_ENCODER, NO_ERRNO
