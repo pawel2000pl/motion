@@ -3,7 +3,7 @@
 
 void auto_color(unsigned char* ptr, unsigned long int size)
 {
-    unsigned long long int distr[255] = {0};    
+    unsigned long long int distr[256] = {0};    
     unsigned long int partial = size / 97 + 1;
     unsigned long int low, high;
     
@@ -15,8 +15,11 @@ void auto_color(unsigned char* ptr, unsigned long int size)
     for (unsigned int i=1;i<255;i++)
         distr[i] += distr[i-1];
     
-    for (high=255; high>0 && distr[high] > size-partial; high--);
-    for (low=0; low < 255 && distr[low] < partial; low++);
+    unsigned long long int highBorder = distr[254]-partial;
+    unsigned long long int lowBorder = distr[0]+partial;
+        
+    for (high=254; high>0 && distr[high] > highBorder; high--);
+    for (low=0; low < high && distr[low] < lowBorder; low++);
         
     if (low < high)
     {
